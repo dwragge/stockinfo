@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: dwragge
+---
+testFramework: junit
+sourceLanguage: java
