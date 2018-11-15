@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
+import java.util.Optional;
 
 @Singleton
 public class AlphaVantageClient {
@@ -23,24 +24,22 @@ public class AlphaVantageClient {
         this.httpClient = httpClient;
     }
 
-    public String executeRawRequest(AlphaVantageRequest request) {
+    public <T extends AlphaVantageResponseClass> Optional<T> executeRequest(AlphaVantageRequest request, Class<T> responseType) {
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(URI.create(request.getRequestString(apiKey)))
+                .uri(URI.create(request.createRequestString(apiKey)))
                 .build();
 
-        return httpClient.executeRequest(httpRequest);
-    }
-
-    public <T> T executeRequest(AlphaVantageRequest request, Class<? extends AlphaVantageResponseClass> deserializeType) {
-        String responseBody = executeRawRequest(request);
-
         try {
+            var responseBody = httpClient.executeRequest(httpRequest);
+
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JodaModule());
-            return mapper.readerFor(deserializeType).readValue(responseBody);
+            // is this really unchecked? how else to do it
+            T value = mapper.readerFor(responseType).readValue(responseBody);
+            return Optional.of(value);
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return Optional.empty();
         }
     }
 }

@@ -2,13 +2,13 @@ package dwragge;
 
 import java.util.HashMap;
 
-import static java.util.stream.Collectors.joining;
-
 public class AlphaVantageRequestBuilder {
     private HashMap<String, String> params = new HashMap<>();
+    private AlphaVantageFunction function;
 
     public AlphaVantageRequestBuilder withFunction(AlphaVantageFunction function) {
         params.put("function", function.getFunctionCode());
+        this.function = function;
         return this;
     }
 
@@ -23,6 +23,6 @@ public class AlphaVantageRequestBuilder {
     }
 
     public AlphaVantageRequest build() {
-        return new AlphaVantageRequest(params);
+        return new AlphaVantageRequest(params, function);
     }
 }

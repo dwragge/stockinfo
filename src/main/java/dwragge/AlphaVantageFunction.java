@@ -16,7 +16,7 @@ public enum AlphaVantageFunction {
         return  functionCode;
     }
 
-    public Class<? extends AlphaVantageResponseClass> getResponseClassType() {
+    public Class<? extends AlphaVantageResponseClass> responseClassType() {
         return responseClassType;
     }
 }

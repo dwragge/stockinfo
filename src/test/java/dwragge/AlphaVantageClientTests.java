@@ -1,9 +1,11 @@
 package dwragge;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import java.net.http.HttpRequest;
+import java.nio.charset.Charset;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -18,7 +20,7 @@ public class AlphaVantageClientTests {
                 .build();
 
         String expectedUrl = "https://www.alphavantage.co/query?symbol=MSFT&function=TIME_SERIES_DAILY&apikey=test";
-        assertEquals(expectedUrl, request.getRequestString(apiKey));
+        assertEquals(expectedUrl, request.createRequestString(apiKey));
     }
 
     @Test
@@ -30,7 +32,7 @@ public class AlphaVantageClientTests {
                 .build();
 
         String expectedUrl = "https://www.alphavantage.co/query?symbol=AAPL&function=TIME_SERIES_INTRADAY&interval=15min&apikey=test";
-        assertEquals(expectedUrl, request.getRequestString(apiKey));
+        assertEquals(expectedUrl, request.createRequestString(apiKey));
     }
 
     @Test
@@ -39,7 +41,7 @@ public class AlphaVantageClientTests {
                 .withSymbol("MSFT")
                 .withFunction(AlphaVantageFunction.TIMESERIES_DAILY)
                 .build();
-        String stubResponse = "{\n" +
+        String stubResponseString = "{\n" +
                 "  \"Meta Data\": {\n" +
                 "    \"1. Information\": \"Daily Prices (open, high, low, close) and Volumes\",\n" +
                 "    \"2. Symbol\": \"MSFT\",\n" +
@@ -64,10 +66,10 @@ public class AlphaVantageClientTests {
                 "    }}}";
 
         HttpClientAdaptor mocked = mock(HttpClientAdaptor.class);
-        when(mocked.executeRequest(any(HttpRequest.class))).thenReturn(stubResponse);
+        when(mocked.executeRequest(any(HttpRequest.class))).thenReturn(stubResponseString.getBytes(Charset.forName("UTF-8")));
         AlphaVantageClient client = new AlphaVantageClient(mocked);
 
-        TimeSeriesData data = client.executeRequest(request, AlphaVantageFunction.TIMESERIES_DAILY.getResponseClassType());
+        TimeSeriesData data = client.executeRequest(request, TimeSeriesData.class).orElseThrow();
         assertEquals(2, data.seriesData().size());
         assertEquals(33621807L, data.seriesData().get(LocalDate.parse("2018-11-12")).volume());
     }

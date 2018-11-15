@@ -18,11 +18,11 @@ public class Java11HttpClient implements HttpClientAdaptor {
     }
 
     @Override
-    public String executeRequest(HttpRequest request) {
+    public byte[] executeRequest(HttpRequest request) {
         logger.info(String.format("Beginning request to %s", request.uri()));
 
         long startTime = System.nanoTime();
-        HttpResponse<String> responseBody = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        HttpResponse<byte[]> responseBody = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray())
                 .join();
         long endTime = System.nanoTime();
 

@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
+import java.nio.charset.Charset;
+
 import static org.junit.Assert.*;
 
 public class Java11HttpClientTests {
@@ -14,7 +16,8 @@ public class Java11HttpClientTests {
                 .uri(URI.create("https://jsonplaceholder.typicode.com/todos/1"))
                 .build();
 
-        String responseString = client.executeRequest(request);
+        byte[] response = client.executeRequest(request);
+        String responseString = new String(response, Charset.forName("UTF-8"));
         String expected = "{\n" +
                 "  \"userId\": 1,\n" +
                 "  \"id\": 1,\n" +

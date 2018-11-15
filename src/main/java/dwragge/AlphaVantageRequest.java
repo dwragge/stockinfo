@@ -1,22 +1,20 @@
 package dwragge;
 
-
-import org.immutables.value.Value;
-
 import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
-@Value.Immutable
 public class AlphaVantageRequest {
     private static final String BASE_ENDPOINT = "https://www.alphavantage.co/query?";
+    private final AlphaVantageFunction function;
     private final Map<String, String> paramsMap;
 
-    AlphaVantageRequest(Map<String, String> paramsMap) {
+    AlphaVantageRequest(Map<String, String> paramsMap, AlphaVantageFunction function) {
         this.paramsMap = paramsMap;
+        this.function = function;
     }
 
-    public String getRequestString(String apiKey) {
+    public String createRequestString(String apiKey) {
         // build optimistically, assume will throw upstream (by 400) if invalid
         String paramsString =  paramsMap.entrySet()
                 .stream()
@@ -25,6 +23,10 @@ public class AlphaVantageRequest {
         paramsString += "&apikey=" + apiKey;
 
         return BASE_ENDPOINT + paramsString;
+    }
+
+    public AlphaVantageFunction function() {
+        return function;
     }
 
     public static AlphaVantageRequestBuilder newBuilder() {
